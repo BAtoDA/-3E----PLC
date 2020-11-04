@@ -1,0 +1,423 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Modbus</name>
+    </assembly>
+    <members>
+        <member name="F:Modbus.Form1.components">
+            <summary>
+            必需的设计器变量。
+            </summary>
+        </member>
+        <member name="M:Modbus.Form1.Dispose(System.Boolean)">
+            <summary>
+            清理所有正在使用的资源。
+            </summary>
+            <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
+        </member>
+        <member name="M:Modbus.Form1.InitializeComponent">
+            <summary>
+            设计器支持所需的方法 - 不要修改
+            使用代码编辑器修改此方法的内容。
+            </summary>
+        </member>
+        <member name="M:Modbus.Modbus_crc.IsCrcOK(System.Byte[])">
+            <summary>
+            判断数据中crc是否正确
+            </summary>
+            <param name="datas">传入的数据后两位是crc</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_crc.GetCRCDatas(System.Byte[])">
+            <summary>
+            传入数据添加两位crc
+            </summary>
+            <param name="datas"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_name.GenerateH01(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            对下位机进行多线圈读取--H01
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">读取起始地址</param>
+            <param name="number">读取个数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_name.GenerateH02(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            对下位机读取设备输入状态--H02
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">读取起始地址</param>
+            <param name="number">读取个数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_name.GenerateH03(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            对下位机进行字(多字)读取--H03
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">读取起始地址</param>
+            <param name="number">读取个数（字）</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_name.GenerateH05(Modbus.function,System.UInt16,System.UInt16,Modbus.coil)">
+            <summary>
+            对下位机进行线圈写入--H05
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">写入起始地址</param>
+            <param name="coil">要写入的状态</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_name.GenerateH06(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            对下位机进行寄存器写入--H06
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">写入起始地址</param>
+            <param name="number">要写入的数据</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_name.GenerateH15(Modbus.function,System.UInt16,System.UInt16,System.UInt16,System.Byte)">
+            <summary>
+            对下位机进行多线圈写入--H15
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">写入起始地</param>
+            <param name="number">要写入的个数--线圈个数不能大于一个字</param>
+            <param name="coil">要写入的数据（把要写入的二进制转换成无符号字）</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_name.GenerateH16(Modbus.function,System.UInt16,System.UInt16,System.UInt16,System.Byte[])">
+            <summary>
+            对下位机进行多寄存器写入--H16
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>          
+            <param name="start">写入起始地</param>
+            <param name="number">要写入的个数</param>
+            <param name="content">要写入的数据数组</param>
+            <returns></returns>
+        </member>
+        <member name="T:Modbus.Modbus_RTU">
+            <summary>
+            Modbus-rtu通讯方式--继承接口Modbus_name与Modbus_crc-CRC效验
+            其实方法的枚举可以不要--完全可以吧方法合并--谨防小白而已
+            其实很多方法和可以合并--H01--H06 除了H05,H15,H16基本都合并成一个方法
+            @BY-沓
+            @2020年-5-7
+            </summary>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.Modbus#Modbus_name#GenerateH01(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            实现接口对下位机进行多线圈读取
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">读取起始地址</param>
+            <param name="number">读取个数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.Modbus#Modbus_name#GenerateH02(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            实现接口对下位机读取设备输入状态
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">读取起始地址</param>
+            <param name="number">读取个数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.Modbus#Modbus_name#GenerateH03(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            实现对下位机进行字(多字)读取--H03
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">读取起始地址</param>
+            <param name="number">读取个数（字）</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.Modbus#Modbus_name#GenerateH05(Modbus.function,System.UInt16,System.UInt16,Modbus.coil)">
+            <summary>
+            实现对下位机进行线圈写入--H05
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">写入起始地址</param>
+            <param name="coil">要写入的状态</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.Modbus#Modbus_name#GenerateH06(Modbus.function,System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            实现对下位机进行寄存器写入--H06
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">写入起始地址</param>
+            <param name="number">要写入的数据</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.Modbus#Modbus_name#GenerateH15(Modbus.function,System.UInt16,System.UInt16,System.UInt16,System.Byte)">
+            <summary>
+            对下位机进行多线圈写入--H15
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>
+            <param name="start">写入起始地</param>
+            <param name="number">要写入的个数(线圈个数)默认限制8个bit位</param>
+            <param name="coil">要写入的数据（把要写入的二进制转换成无符号字）</param>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.Modbus#Modbus_name#GenerateH16(Modbus.function,System.UInt16,System.UInt16,System.UInt16,System.Byte[])">
+            <summary>
+            实现对下位机进行多寄存器写入--H16
+            </summary>
+            <param name="function">功能码枚举</param>
+            <param name="Station">访问的站号</param>          
+            <param name="start">写入起始地</param>
+            <param name="number">要写入的个数</param>
+            <param name="content">要写入的数据数组</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_RTU.int_to_byte(System.Int32)">
+            <summary>
+            进行int32转字节-放弃高字节
+            </summary>
+            <param name="Data"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Modbus.numerical_format">
+            <summary>
+            用于选择访问设备返回的类型
+            </summary>
+        </member>
+        <member name="T:Modbus.Modbus_TCPrealize">
+            <summary>
+            本类用于实现modbus_TCP 并且返回操作结果
+            </summary>
+        </member>
+        <member name="P:Modbus.Modbus_TCPrealize.socket">
+            <summary>
+            实例化一个套接字
+            </summary>
+        </member>
+        <member name="P:Modbus.Modbus_TCPrealize.IPEnd">
+            <summary>
+            实例化一个IP地址与端口
+            </summary>
+        </member>
+        <member name="P:Modbus.Modbus_TCPrealize.Socket_ready">
+            <summary>
+            指示着是否访问成功
+            </summary>
+        </member>
+        <member name="P:Modbus.Modbus_TCPrealize.Modbus_TCP">
+            <summary>
+            实例化一个TCP报文生成对象
+            </summary>
+        </member>
+        <member name="P:Modbus.Modbus_TCPrealize.mutex">
+            <summary>
+            互斥锁 预防多线程进入导致 数据错乱
+            </summary>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.#ctor(System.Net.IPEndPoint)">
+            <summary>
+            构造函数
+            </summary>
+            <param name="iPEnd"></param>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Open">
+            <summary>
+            打开端口
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Close">
+            <summary>
+            切断套接字
+            </summary>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_Byet(System.Byte)">
+            <summary>
+            使用H03功能码发送报文并且等待设备回复--字节--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_short(System.Byte)">
+            <summary>
+            使用H03功能码发送报文并且等待设备回复--无符号字--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_ushort(System.Byte)">
+            <summary>
+            使用H03功能码发送报文并且等待设备回复--有符号字--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_int(System.Byte)">
+            <summary>
+            使用H03功能码发送报文并且等待设备回复--无符号双字--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_uint(System.Byte)">
+            <summary>
+            使用H03功能码发送报文并且等待设备回复--有符号双字--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_return(Modbus.numerical_format)">
+            <summary>
+            用于返回指定类型
+            </summary>
+            <param name="numerical">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Write_Byte(System.Byte,System.Byte)">
+            <summary>
+            使用H16功能码进行数据写入--字节--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Write_short(System.Byte,System.Int16)">
+            <summary>
+            使用H16功能码进行数据写入--无符号字--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Write_int(System.Byte,System.Int32)">
+            <summary>
+            使用H16功能码进行数据写入--无符号双字--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Write_Long(System.Byte,System.Int64)">
+            <summary>
+            使用H16功能码进行数据写入--无符号长整型--堵塞模式
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Write_return``1(Modbus.numerical_format,``0,System.Byte)">
+            <summary>
+            用于写入的操作结果
+            </summary>
+            <typeparam name="T">要写入的类型--约束泛型T</typeparam>
+            <param name="numerical">要写入的格式</param>
+            <param name="Data">要写入的数据--类型是约束T的类型</param>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_Bool(System.Byte)">
+            <summary>
+            使用H01功能码进行单个线圈读取
+            </summary>
+            <param name="address">起始地址</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Read_multi_Bool(System.Byte,System.Byte)">
+            <summary>
+            使用H01功能码读取指定的多个线圈状态
+            </summary>
+            <param name="address">起始地址</param>
+            <param name="number">读取个数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.ConvertIntToBoolArray(System.Byte,System.Byte)">
+            <summary>
+            byte转B00L
+            </summary>
+            <param name="result">要解析的数据</param>
+            <param name="len">解析后返回的个数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.write_Bool(System.Byte,Modbus.coil)">
+            <summary>
+            使用功能码H05进行单线圈写入
+            </summary>
+            <param name="address">起始地址</param>
+            <param name="coil">要写入的状态</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.write_multi_Bool(System.Byte,System.Byte,System.Byte)">
+            <summary>
+            使用H15功能码进行多线圈写入
+            </summary>
+            <param name="address">起始地址</param>
+            <param name="multi">要写入的个数</param>
+            <param name="coil">要写的数据--最大字节</param>
+            <returns></returns>
+        </member>
+        <member name="M:Modbus.Modbus_TCPrealize.Err``1(System.Exception)">
+            <summary>
+            处理Err异常  返回结果
+            </summary>
+            <param name="exception"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Modbus.OperateResult`1">
+            <summary>
+            指示着访问结果-与访问返回的数据
+            </summary>
+        </member>
+        <member name="M:Modbus.OperateResult`1.#ctor">
+            <summary>
+            构造函数
+            </summary>
+        </member>
+        <member name="P:Modbus.OperateResult`1.Content">
+            <summary>
+             用户自定义的泛型数据
+            </summary>
+        </member>
+        <member name="P:Modbus.OperateResult`1.IsSuccess">
+            <summary>
+              指示本次访问是否成功
+            </summary>
+        </member>
+        <member name="P:Modbus.OperateResult`1.ErrorCode">
+            <summary>
+            具体的错误代码
+            </summary>
+        </member>
+        <member name="M:Modbus.Program.Main">
+            <summary>
+            应用程序的主入口点。
+            </summary>
+        </member>
+        <member name="T:Modbus.Properties.Resources">
+            <summary>
+              强类型资源类，用于查找本地化字符串等。
+            </summary>
+        </member>
+        <member name="P:Modbus.Properties.Resources.ResourceManager">
+            <summary>
+              返回此类使用的缓存 ResourceManager 实例。
+            </summary>
+        </member>
+        <member name="P:Modbus.Properties.Resources.Culture">
+            <summary>
+              覆盖当前线程的 CurrentUICulture 属性
+              使用此强类型的资源类的资源查找。
+            </summary>
+        </member>
+    </members>
+</doc>
