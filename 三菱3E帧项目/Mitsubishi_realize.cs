@@ -458,11 +458,12 @@ namespace 三菱3E帧项目
                 mutex.WaitOne(3000);
                 if (this.Socket_ready)
                 {
+                    var XA = this.Read_bit(message_Bit, address, 1);
                     this.socket.Send(this.Read_bit(message_Bit,address,1));//发送报文
                     byte[] Data = new byte[50];
                     this.socket.Receive(Data);//接收回复
                     mutex.ReleaseMutex();
-                    return new Operating<bool>() { Content = Data[11] > 10 ? true : false, ErrorCode = "0", IsSuccess = true };
+                    return new Operating<bool>() { Content = Analysis(Data,address), ErrorCode = "0", IsSuccess = true };
                 }
                 else
                     throw new AggregateException("未连接设备");
@@ -472,6 +473,66 @@ namespace 三菱3E帧项目
                 mutex.ReleaseMutex();
                 return Err<bool>(e);
             }
+        }
+        /// <summary>
+        /// 解析Y点线圈状态
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        private bool Analysis(byte[] Data, int address)
+        {
+            int len = 0;//Y点读取位置
+            int inx = 0;//尾部位置
+            switch (address.ToString().Length)
+            {
+                case 1:
+                    len = 1;
+                    inx = address;
+                    break;
+                case 2:
+                    len = Convert.ToInt32(address.ToString().Remove(1, 1)) % 2 > 0 ? 2 : 1;
+                    inx = Convert.ToInt32(address.ToString().Remove(0, 1));
+                    break;
+                case 3:
+                    len = Convert.ToInt32(address.ToString().Remove(2, 2)) % 2 > 0 ? 2 : 1;
+                    inx = Convert.ToInt32(address.ToString().Remove(0, 2));
+                    break;
+            }
+            if(len>1)
+            {
+                int a = 15 + (inx / 2);
+                return Y_ysis(Data[15 + (inx / 2)],inx);
+            }
+            return Y_ysis(Data[11 + (inx / 2)],inx);
+        }
+
+        private bool Y_ysis(byte Data, int inx)
+        {
+            switch (Data)
+            {
+                case 1:
+                    if (inx % 2 == 1)
+                        return true;
+                    else
+                        return false;
+                case 16:
+                    if (inx % 2 == 1)
+                        return false;
+                    else
+                        return true;
+                case 17:
+                    if (inx % 2 == 1)
+                        return true;
+                    else
+                        return true;
+                case 0:
+                    if (inx % 2 == 1)
+                        return false;
+                    else
+                        return false;
+            }
+            return false;
         }
         /// <summary>
         /// 读取多个位
@@ -512,7 +573,7 @@ namespace 三菱3E帧项目
         /// <param name="address">起始地址</param>
         /// <param name="coil">要写入的状态</param>
         /// <returns></returns>
-        public Operating<bool> write_Bool(message_bit message_Bit,byte address, bool coil)
+        public Operating<bool> write_Bool(message_bit message_Bit,int address, bool coil)
         {
             try
             {

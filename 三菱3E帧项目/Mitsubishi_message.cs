@@ -54,7 +54,25 @@ namespace 三菱3E帧项目
         protected virtual byte[] Read_bit(message_bit message_Bit, int location, byte number)
         {
             string length = "0c00";//请求长度真实数据是000C 转换成10进制是13个字节
-            string Data = $"{Secondary_head}{Station_number}{length}{Time}{Batch_read_command_bit}{Int_to_String(location)}{Convert.ToString((int)message_Bit, 16)}{ number_to_String(number)}{End}";//获取默认头部帧
+            if (message_Bit != message_bit.Y)
+            {
+                string Data1 = $"{Secondary_head}{Station_number}{length}{Time}{Batch_read_command_bit}{Int_to_String(location)}{Convert.ToString((int)message_Bit, 16)}{ number_to_String(number)}{End}";//获取默认头部帧
+                return BytesLHToBytesHL(Data1);
+            }
+            int len = 0;//Y点读取位置
+            switch(location.ToString().Length)
+            {
+                case 1:
+                    len = 0;
+                    break;
+                case 2:
+                    len = Convert.ToInt32(location.ToString().Remove(1, 1))/2;
+                    break;
+                case 3:
+                    len = Convert.ToInt32(location.ToString().Remove(1, 2))/2;
+                    break;
+            }
+            string Data = $"{Secondary_head}{Station_number}{length}{Time}{Batch_read_command_bit}{Int_to_String(len*10,true)}{Convert.ToString((int)message_Bit, 16)}10{End}";//获取默认头部帧
             return BytesLHToBytesHL(Data);
         }
         /// <summary>
@@ -81,8 +99,14 @@ namespace 三菱3E帧项目
         {
             int len = 1;
             string length = $"{number_to_String(Convert.ToByte(len + 12))}00";//请求长度真实数据标准12个加上要写入的长度等于真实长度
-            string Data = $"{Secondary_head}{Station_number}{length}{Time}{Batch_write_command_bit}{Int_to_String(location)}{Convert.ToString((int)message_Bit, 16)}{number_to_String(Convert.ToByte(len))}{End}{bool_to_string(new bool[] { number })}";//获取默认头部帧
-            return BytesLHToBytesHL(Data);
+            if (message_Bit != message_bit.Y|| location<10)
+            {
+                string Data = $"{Secondary_head}{Station_number}{length}{Time}{Batch_write_command_bit}{Int_to_String(location)}{Convert.ToString((int)message_Bit, 16)}{number_to_String(Convert.ToByte(len))}{End}{bool_to_string(new bool[] { number })}";//获取默认头部帧
+                return BytesLHToBytesHL(Data);
+            }
+            var DATQ = Convert.ToInt32(location.ToString(), 8);//Q系列不需要装换8进制
+            string Data1 = $"{Secondary_head}{Station_number}{length}{Time}{Batch_write_command_bit}{Int_to_String(DATQ)}{Convert.ToString((int)message_Bit, 16)}{number_to_String(Convert.ToByte(len))}{End}{bool_to_string(new bool[] { number })}";//获取默认头部帧
+            return BytesLHToBytesHL(Data1);
         }
         /// <summary>
         /// 多线圈写入
@@ -263,6 +287,25 @@ namespace 三菱3E帧项目
                     Data_1 += Data[i].ToString("X");
             }
             return  Data_1;
+        }
+        /// <summary>
+        /// 把int类型转换成string并且进行高低位互换
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        private string Int_to_String(int location,bool x)
+        {
+            byte[] Data = new byte[3];
+            Data = BitConverter.GetBytes(location);
+            string Data_1 = string.Empty;
+            for (int i = 0; i < 3; i++)
+            {
+                if (Data[i].ToString().Length == 1)
+                    Data_1 += "0" + Data[i].ToString();
+                else
+                    Data_1 += Data[i].ToString();
+            }
+            return Data_1;
         }
         /// <summary>
         /// 把生成的字符串报文转换二进制报文
